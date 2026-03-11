@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Domain\Entities;
+
+use DateTimeImmutable;
+use DateTimeZone;
+
+class Ticket {
+    private ?int $id = null;
+    private string $title;
+    private string $description;
+    private int $departmentId;
+    private int $requesterId;
+    private DateTimeImmutable  $createdAt;
+
+    public function __construct(string $title, string $description, int $departmentId, int $requesterId) {
+        $this->title = $title;
+        $this->description = $description;
+        $this->departmentId = $departmentId;
+        $this->requesterId = $requesterId;
+        $this->createdAt = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+    }
+
+    public function getId(): ?int {
+        return $this->id;
+    }
+
+    public function setId(int $id): void {
+        $this->id = $id;
+    }
+
+    public function getTitle(): string {
+        return $this->title;
+    }
+
+    public function getDescription(): string {
+        return $this->description;
+    }
+
+    public function getDepartmentId(): int {
+        return $this->departmentId;
+    }
+
+    public function getRequesterId(): int {
+        return $this->requesterId;
+    }
+
+    public function getCreatedAt(): DateTimeImmutable {
+        return $this->createdAt;
+    }
+}
