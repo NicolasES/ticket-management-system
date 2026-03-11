@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Application\DTOs;
+namespace App\Application\DTOs\Input;
 
-class CreateUserDTO {
+class CreateUserInput{
     public function __construct(
         public readonly string $email,
         public readonly string $name

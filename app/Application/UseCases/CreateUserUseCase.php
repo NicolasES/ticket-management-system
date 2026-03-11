@@ -2,7 +2,7 @@
 
 namespace App\Application\UseCases;
 
-use App\Application\DTOs\CreateUserDTO;
+use App\Application\DTOs\Input\CreateUserInput;
 use App\Domain\Entities\User;
 use App\Domain\Repositories\UserRepository;
 
@@ -11,8 +11,9 @@ class CreateUserUseCase {
         private UserRepository $userRepository
     ) {}
 
-    public function execute(CreateUserDTO $createUserDTO) {
-        $user = new User($createUserDTO->email, $createUserDTO->name);
+    public function execute(CreateUserInput $input): User {
+        $user = new User($input->email, $input->name);
         $this->userRepository->save($user);
+        return $user;
     }
 }
