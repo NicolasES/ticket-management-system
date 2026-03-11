@@ -27,16 +27,12 @@ describe('AnswerQuestion', function () {
         $ticketRepository = Mockery::mock(TicketRepository::class);
         $userRepository = Mockery::mock(UserRepository::class);
         $departmentRepository = Mockery::mock(DepartmentRepository::class);
+        $ticketMock = new Ticket('fakeTitle', 'fakeDescription', 1, 1);
+        $ticketMock->setId(123);
         
-        $ticket = Mockery::mock(Ticket::class);
-        $ticket->shouldReceive('getId')->andReturn(123);
-        $ticket->shouldReceive('getTitle')->andReturn('fakeTitle');
-        $ticket->shouldReceive('getDescription')->andReturn('fakeDescription');
-
         $userRepository->shouldReceive('findById')->andReturn($this->userMock);
         $departmentRepository->shouldReceive('findById')->andReturn($this->departmentMock);
-        
-        $ticketRepository->shouldReceive('save')->andReturn($ticket);
+        $ticketRepository->shouldReceive('save')->andReturn($ticketMock);
         
         $createTicketUseCase = new CreateTicketUseCase($ticketRepository, $userRepository, $departmentRepository);
         $createTicketInput = new CreateTicketInput('fakeTitle', 'fakeDescription', 1, 1);
@@ -46,6 +42,7 @@ describe('AnswerQuestion', function () {
         expect($output->id)->toBe(123);
         expect($output->title)->toBe('fakeTitle');
         expect($output->description)->toBe('fakeDescription');
+        expect($output->status)->toBe('pending');
         expect($output->department->name)->toBe('fakeDepartmentName');
         expect($output->requester->name)->toBe('fakeRequesterName');
     });

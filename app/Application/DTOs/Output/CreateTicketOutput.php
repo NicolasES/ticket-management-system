@@ -21,6 +21,7 @@ class CreateTicketOutput {
         public readonly int $id,
         public readonly string $title,
         public readonly string $description,
+        public readonly string $status,
         public readonly TicketDepartmentOutput $department,
         public readonly TicketRequesterOutput $requester
     ) {}

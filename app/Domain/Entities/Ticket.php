@@ -2,6 +2,7 @@
 
 namespace App\Domain\Entities;
 
+use App\Domain\Enums\TicketStatusEnum;
 use DateTimeImmutable;
 use DateTimeZone;
 
@@ -11,7 +12,8 @@ class Ticket {
     private string $description;
     private int $departmentId;
     private int $requesterId;
-    private DateTimeImmutable  $createdAt;
+    private DateTimeImmutable $createdAt;
+    private TicketStatusEnum $status;
 
     public function __construct(string $title, string $description, int $departmentId, int $requesterId) {
         $this->title = $title;
@@ -19,6 +21,7 @@ class Ticket {
         $this->departmentId = $departmentId;
         $this->requesterId = $requesterId;
         $this->createdAt = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+        $this->status = TicketStatusEnum::PENDING;
     }
 
     public function getId(): ?int {
@@ -47,5 +50,9 @@ class Ticket {
 
     public function getCreatedAt(): DateTimeImmutable {
         return $this->createdAt;
+    }
+
+    public function getStatus(): TicketStatusEnum {
+        return $this->status;
     }
 }

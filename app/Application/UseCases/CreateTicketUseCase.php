@@ -41,6 +41,7 @@ class CreateTicketUseCase {
             $ticket->getId(),
             $ticket->getTitle(),
             $ticket->getDescription(),
+            $ticket->getStatus()->value,
             new TicketDepartmentOutput($department->getId(), $department->getName()),
             new TicketRequesterOutput($requester->getId(), $requester->getName())
         );
