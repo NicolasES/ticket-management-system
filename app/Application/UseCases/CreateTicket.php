@@ -12,7 +12,7 @@ use App\Domain\Repositories\DepartmentRepository;
 use App\Domain\Repositories\TicketRepository;
 use App\Domain\Repositories\UserRepository;
 
-class CreateTicketUseCase {
+class CreateTicket {
     public function __construct(
         private readonly TicketRepository $ticketRepository,
         private readonly UserRepository $userRepository,

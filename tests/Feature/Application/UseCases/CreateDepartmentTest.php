@@ -1,6 +1,6 @@
 <?php
 
-use App\Application\UseCases\CreateDepartmentUseCase;
+use App\Application\UseCases\CreateDepartment;
 use App\Application\DTOs\Input\CreateDepartmentInput;
 use App\Domain\Entities\Department;
 use App\Domain\Repositories\DepartmentRepository;
@@ -13,9 +13,9 @@ test('should create a new department', function() {
     $departmentRepository->shouldReceive('save')
         ->once()
         ->andReturn($mockDepartment);
-    $createDepartmentUseCase = new CreateDepartmentUseCase($departmentRepository);
+    $createDepartment = new CreateDepartment($departmentRepository);
     $input = new CreateDepartmentInput('DepartmentName');
-    $output = $createDepartmentUseCase->execute($input);
+    $output = $createDepartment->execute($input);
     expect($output->id)->toBe(1);
     expect($output->name)->toBe('DepartmentName');
 });

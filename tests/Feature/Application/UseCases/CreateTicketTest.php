@@ -2,7 +2,7 @@
 
 use App\Application\DTOs\Input\CreateTicketInput;
 use App\Application\DTOs\Output\CreateTicketOutput;
-use App\Application\UseCases\CreateTicketUseCase;
+use App\Application\UseCases\CreateTicket;
 use App\Domain\Entities\Department;
 use App\Domain\Entities\Ticket;
 use App\Domain\Entities\User;
@@ -34,9 +34,9 @@ describe('AnswerQuestion', function () {
         $departmentRepository->shouldReceive('findById')->andReturn($this->departmentMock);
         $ticketRepository->shouldReceive('save')->andReturn($ticketMock);
         
-        $createTicketUseCase = new CreateTicketUseCase($ticketRepository, $userRepository, $departmentRepository);
+        $createTicket = new CreateTicket($ticketRepository, $userRepository, $departmentRepository);
         $createTicketInput = new CreateTicketInput('fakeTitle', 'fakeDescription', 1, 1);
-        $output = $createTicketUseCase->execute($createTicketInput);
+        $output = $createTicket->execute($createTicketInput);
         
         expect($output)->toBeInstanceOf(CreateTicketOutput::class);
         expect($output->id)->toBe(123);
@@ -57,9 +57,9 @@ describe('AnswerQuestion', function () {
         $departmentRepository->shouldReceive('findById')->andReturn($this->departmentMock);
         $ticketRepository->shouldReceive('save')->andReturn($ticket);
         
-        $createTicketUseCase = new CreateTicketUseCase($ticketRepository, $userRepository, $departmentRepository);
+        $createTicket = new CreateTicket($ticketRepository, $userRepository, $departmentRepository);
         $createTicketInput = new CreateTicketInput('fakeTitle', 'fakeDescription', 1, 1);
-        expect(fn() => $createTicketUseCase->execute($createTicketInput))->toThrow(new NotFoundException('Requester not found'));
+        expect(fn() => $createTicket->execute($createTicketInput))->toThrow(new NotFoundException('Requester not found'));
     });
 
     test('should throw an Excpetion with department not found', function () {
@@ -72,9 +72,9 @@ describe('AnswerQuestion', function () {
         $departmentRepository->shouldReceive('findById')->andReturn(null);
         $ticketRepository->shouldReceive('save')->andReturn($ticket);
         
-        $createTicketUseCase = new CreateTicketUseCase($ticketRepository, $userRepository, $departmentRepository);
+        $createTicket = new CreateTicket($ticketRepository, $userRepository, $departmentRepository);
         $createTicketInput = new CreateTicketInput('fakeTitle', 'fakeDescription', 1, 1);
-        expect(fn() => $createTicketUseCase->execute($createTicketInput))->toThrow(new NotFoundException('Department not found'));
+        expect(fn() => $createTicket->execute($createTicketInput))->toThrow(new NotFoundException('Department not found'));
     });
 
 });

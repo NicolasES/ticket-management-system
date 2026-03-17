@@ -6,7 +6,7 @@ use App\Application\DTOs\Input\CreateUserInput;
 use App\Domain\Entities\User;
 use App\Domain\Repositories\UserRepository;
 
-class CreateUserUseCase {
+class CreateUser {
     public function __construct(
         private UserRepository $userRepository
     ) {}
