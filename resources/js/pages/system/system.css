@@ -1,0 +1,37 @@
+.mock-system-scope .glass-panel {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.mock-system-scope .input-stylish {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    color: #f8fafc;
+    transition: all 0.2s ease;
+}
+
+.mock-system-scope .input-stylish:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.mock-system-scope ::-webkit-scrollbar {
+    width: 6px;
+}
+
+.mock-system-scope ::-webkit-scrollbar-track {
+    background: rgba(30, 41, 59, 0.5);
+}
+
+.mock-system-scope ::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 4px;
+}
+
+.mock-system-scope ::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
