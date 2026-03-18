@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\DepartmentModel;
 use Laravel\Fortify\Features;
 
 beforeEach(function () {
@@ -7,12 +8,16 @@ beforeEach(function () {
 });
 
 test('registration screen can be rendered', function () {
+    DepartmentModel::factory()->create(['name' => 'Geral']);
+
     $response = $this->get(route('register'));
 
     $response->assertOk();
 });
 
 test('new users can register', function () {
+    DepartmentModel::factory()->create(['name' => 'Geral']);
+
     $response = $this->post(route('register.store'), [
         'name' => 'Test User',
         'email' => 'test@example.com',
