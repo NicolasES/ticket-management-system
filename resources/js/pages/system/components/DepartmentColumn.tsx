@@ -4,10 +4,10 @@ import { Department } from '@/types/system';
 
 interface DepartmentColumnProps {
     departments: Department[];
-    onSubmitMock?: (name: string) => void;
+    onSubmit?: (name: string) => void;
 }
 
-export function DepartmentColumn({ departments, onSubmitMock }: DepartmentColumnProps) {
+export function DepartmentColumn({ departments, onSubmit }: DepartmentColumnProps) {
     const { data, setData, post, reset, processing } = useForm({
         name: ''
     });
@@ -15,8 +15,8 @@ export function DepartmentColumn({ departments, onSubmitMock }: DepartmentColumn
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         
-        if (onSubmitMock) {
-            onSubmitMock(data.name);
+        if (onSubmit) {
+            onSubmit(data.name);
             reset();
             return;
         }

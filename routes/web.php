@@ -1,8 +1,8 @@
 <?php
 
+use App\Http\Controllers\SimulateSystemController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
-use Inertia\Inertia;
 
 Route::inertia('/', 'welcome', [
     'canRegister' => Features::enabled(Features::registration()),
@@ -13,9 +13,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 
-Route::get('/simulate', function () {
-    return Inertia::render('system/Index');
-});
+Route::get('/simulate', SimulateSystemController::class)->name('simulate');
 
 
 require __DIR__.'/settings.php';

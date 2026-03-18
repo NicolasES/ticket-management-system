@@ -7,26 +7,18 @@ import { TicketColumn } from './components/TicketColumn';
 import { Head } from '@inertiajs/react';
 import './system.css';
 
-interface MockSystemPageProps {
-    // Props recebidas do backend Inertia
-    // Quando você finalizar o DDD e as rotas, o backend deve enviar essas props
+interface SystemPageProps {
     serverDepartments?: Department[];
     serverUsers?: User[];
     serverTickets?: Ticket[];
 }
 
-export default function MockSystemIndex({ serverDepartments = [], serverUsers = [], serverTickets = [] }: MockSystemPageProps) {
+export default function SystemIndex({ serverDepartments = [], serverUsers = [], serverTickets = [] }: SystemPageProps) {
     // Estado local para permitir a simulação de tela sem o backend pronto
-    const [localDepartments, setLocalDepartments] = useState<Department[]>(serverDepartments || []);
-    const [localUsers, setLocalUsers] = useState<User[]>(serverUsers || []);
-    const [localTickets, setLocalTickets] = useState<Ticket[]>(serverTickets || []);
+    const [departments, setdepartments] = useState<Department[]>(serverDepartments || []);
+    const [users, setusers] = useState<User[]>(serverUsers || []);
+    const [tickets, settickets] = useState<Ticket[]>(serverTickets || []);
     const [activeUser, setActiveUser] = useState<User | null>(null);
-
-    // Usa dados do servidor se existirem, caso contrário usa estado local para o "mock"
-    const isUsingServerData = serverDepartments.length > 0 || serverUsers.length > 0;
-    const departments = isUsingServerData ? serverDepartments : localDepartments;
-    const users = isUsingServerData ? serverUsers : localUsers;
-    const tickets = isUsingServerData ? serverTickets : localTickets;
 
     const seedData = () => {
         if (departments.length > 0) {
@@ -39,28 +31,38 @@ export default function MockSystemIndex({ serverDepartments = [], serverUsers = 
             { id: 2, name: 'Recursos Humanos' },
             { id: 3, name: 'Financeiro' },
         ];
-        setLocalDepartments(defaultDepts);
+        setdepartments(defaultDepts);
 
         const defaultUsers: User[] = [
             { id: 1, name: 'João Vitor', department_id: 1, department: defaultDepts[0] },
             { id: 2, name: 'Maria Joaquina', department_id: 2, department: defaultDepts[1] },
             { id: 3, name: 'Carlos Alberto', department_id: 1, department: defaultDepts[0] },
         ];
-        setLocalUsers(defaultUsers);
+        setusers(defaultUsers);
     };
 
-    // --- Mock Handlers ---
-    // Esses handlers são ativados quando os componentes filho percebem
-    // que devem atualizar o mock local. Se os dados vierem do servidor,
-    // os componentes executarão "post()" do Inertia em vez disso.
-
-    const handleMockAddDepartment = (name: string) => {
-        setLocalDepartments(prev => [...prev, { id: prev.length + 1, name }]);
+    const handleAddDepartment = (name: string) => {
+        fetch('/api/departments', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                // 'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            },
+            body: JSON.stringify({
+                name,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            setdepartments(prev => [...prev, { id: data.id, name: data.name }]);
+        })
+        .catch(error => console.log(error));
     };
 
-    const handleMockAddUser = (name: string, departmentId: number) => {
-        const dept = localDepartments.find(d => d.id === departmentId);
-        setLocalUsers(prev => [...prev, {
+    const handleAddUser = (name: string, departmentId: number) => {
+        const dept = departments.find(d => d.id === departmentId);
+        setusers(prev => [...prev, {
             id: prev.length + 1,
             name,
             department_id: departmentId,
@@ -68,12 +70,12 @@ export default function MockSystemIndex({ serverDepartments = [], serverUsers = 
         }]);
     };
 
-    const handleMockAddTicket = (title: string, description: string, targetDeptId: number) => {
+    const handleAddTicket = (title: string, description: string, targetDeptId: number) => {
         if (!activeUser) return;
-        const dept = localDepartments.find(d => d.id === targetDeptId);
+        const dept = departments.find(d => d.id === targetDeptId);
         
         const newTicket: Ticket = {
-            id: localTickets.length + 1,
+            id: tickets.length + 1,
             title,
             description,
             creator_id: activeUser.id,
@@ -83,7 +85,7 @@ export default function MockSystemIndex({ serverDepartments = [], serverUsers = 
             target_department: dept
         };
         
-        setLocalTickets(prev => [newTicket, ...prev]);
+        settickets(prev => [newTicket, ...prev]);
     };
 
     return (
@@ -92,14 +94,14 @@ export default function MockSystemIndex({ serverDepartments = [], serverUsers = 
 
             <TopHeader 
                 activeUser={activeUser} 
-                onSeedData={isUsingServerData ? undefined : seedData} 
+                onSeedData={seedData} 
             />
 
             <main className="flex-1 w-full max-w-7xl mx-auto mt-8 px-4 grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
                 <DepartmentColumn 
                     departments={departments} 
-                    onSubmitMock={!isUsingServerData ? handleMockAddDepartment : undefined} 
+                    onSubmit={handleAddDepartment} 
                 />
                 
                 <UserColumn 
@@ -107,7 +109,7 @@ export default function MockSystemIndex({ serverDepartments = [], serverUsers = 
                     departments={departments} 
                     activeUser={activeUser} 
                     onUserLogin={setActiveUser}
-                    onSubmitMock={!isUsingServerData ? handleMockAddUser : undefined}
+                    onSubmit={handleAddUser}
                 />
                 
                 <TicketColumn 
@@ -115,7 +117,7 @@ export default function MockSystemIndex({ serverDepartments = [], serverUsers = 
                     departments={departments} 
                     users={users}
                     activeUser={activeUser}
-                    onSubmitMock={!isUsingServerData ? handleMockAddTicket : undefined}
+                    onSubmit={handleAddTicket}
                 />
 
             </main>

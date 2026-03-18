@@ -7,10 +7,10 @@ interface UserColumnProps {
     departments: Department[];
     activeUser: User | null;
     onUserLogin: (user: User) => void;
-    onSubmitMock?: (name: string, departmentId: number) => void;
+    onSubmit?: (name: string, departmentId: number) => void;
 }
 
-export function UserColumn({ users, departments, activeUser, onUserLogin, onSubmitMock }: UserColumnProps) {
+export function UserColumn({ users, departments, activeUser, onUserLogin, onSubmit }: UserColumnProps) {
     const { data, setData, post, reset, processing } = useForm({
         name: '',
         department_id: ''
@@ -19,8 +19,8 @@ export function UserColumn({ users, departments, activeUser, onUserLogin, onSubm
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         
-        if (onSubmitMock) {
-            onSubmitMock(data.name, Number(data.department_id));
+        if (onSubmit) {
+            onSubmit(data.name, Number(data.department_id));
             reset();
             return;
         }

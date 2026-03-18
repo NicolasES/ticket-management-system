@@ -7,10 +7,10 @@ interface TicketColumnProps {
     departments: Department[];
     users: User[];
     activeUser: User | null;
-    onSubmitMock?: (title: string, desc: string, targetDeptId: number) => void;
+    onSubmit?: (title: string, desc: string, targetDeptId: number) => void;
 }
 
-export function TicketColumn({ tickets, departments, users, activeUser, onSubmitMock }: TicketColumnProps) {
+export function TicketColumn({ tickets, departments, users, activeUser, onSubmit }: TicketColumnProps) {
     const { data, setData, post, reset, processing } = useForm({
         title: '',
         description: '',
@@ -25,8 +25,8 @@ export function TicketColumn({ tickets, departments, users, activeUser, onSubmit
             return;
         }
 
-        if (onSubmitMock) {
-            onSubmitMock(data.title, data.description, Number(data.department_id));
+        if (onSubmit) {
+            onSubmit(data.title, data.description, Number(data.department_id));
             reset();
             return;
         }
