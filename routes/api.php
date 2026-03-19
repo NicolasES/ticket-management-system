@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\DepartmentUserController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
@@ -11,6 +12,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('departments', [DepartmentController::class, 'store'])->name('departments.store');
+Route::get('departments/{departmentId}/users', [DepartmentUserController::class, 'index'])->name('departments.users.index');
 
 Route::post('users', [UserController::class, 'store'])->name('users.store');
 
