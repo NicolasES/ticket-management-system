@@ -7,12 +7,14 @@ interface UserColumnProps {
     departments: Department[];
     activeUser: User | null;
     onUserLogin: (user: User) => void;
-    onSubmit?: (name: string, departmentId: number) => void;
+    onSubmit?: (name: string, email: string, password: string, departmentId: number) => void;
 }
 
 export function UserColumn({ users, departments, activeUser, onUserLogin, onSubmit }: UserColumnProps) {
     const { data, setData, post, reset, processing } = useForm({
         name: '',
+        email: '',
+        password: '',
         department_id: ''
     });
 
@@ -20,7 +22,7 @@ export function UserColumn({ users, departments, activeUser, onUserLogin, onSubm
         e.preventDefault();
         
         if (onSubmit) {
-            onSubmit(data.name, Number(data.department_id));
+            onSubmit(data.name, data.email, data.password, Number(data.department_id));
             reset();
             return;
         }
@@ -50,6 +52,26 @@ export function UserColumn({ users, departments, activeUser, onUserLogin, onSubm
                             className="w-full px-4 py-2.5 rounded-xl input-stylish text-sm"
                             value={data.name}
                             onChange={(e) => setData('name', e.target.value)}
+                        />
+                    </div>
+                    <div>
+                        <input 
+                            type="email" 
+                            required 
+                            placeholder="Email do Usuário" 
+                            className="w-full px-4 py-2.5 rounded-xl input-stylish text-sm"
+                            value={data.email}
+                            onChange={(e) => setData('email', e.target.value)}
+                        />
+                    </div>
+                    <div>
+                        <input 
+                            type="password" 
+                            required 
+                            placeholder="Senha do Usuário" 
+                            className="w-full px-4 py-2.5 rounded-xl input-stylish text-sm"
+                            value={data.password}
+                            onChange={(e) => setData('password', e.target.value)}
                         />
                     </div>
                     <div>

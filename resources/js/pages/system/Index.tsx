@@ -60,14 +60,25 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
         .catch(error => console.log(error));
     };
 
-    const handleAddUser = (name: string, departmentId: number) => {
-        const dept = departments.find(d => d.id === departmentId);
-        setusers(prev => [...prev, {
-            id: prev.length + 1,
-            name,
-            department_id: departmentId,
-            department: dept
-        }]);
+    const handleAddUser = (name: string, email: string, password: string, departmentId: number) => {
+        fetch('/api/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                name,
+                email,
+                password,
+                department_id: departmentId,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            setusers(prev => [...prev, { id: data.id, name: data.name, email: data.email, department_id: data.department_id }]);
+        })
+        .catch(error => console.log(error));
     };
 
     const handleAddTicket = (title: string, description: string, targetDeptId: number) => {
