@@ -34,9 +34,9 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
         setdepartments(defaultDepts);
 
         const defaultUsers: User[] = [
-            { id: 1, name: 'João Vitor', department_id: 1, department: defaultDepts[0] },
-            { id: 2, name: 'Maria Joaquina', department_id: 2, department: defaultDepts[1] },
-            { id: 3, name: 'Carlos Alberto', department_id: 1, department: defaultDepts[0] },
+            { id: 1, name: 'João Vitor', department_id: 1 },
+            { id: 2, name: 'Maria Joaquina', department_id: 2 },
+            { id: 3, name: 'Carlos Alberto', department_id: 1 },
         ];
         setusers(defaultUsers);
     };
@@ -81,6 +81,31 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
         .catch(error => console.log(error));
     };
 
+    const handleDepartmentClick = (departmentId: number) => {
+        fetch(`/api/departments/${departmentId}/users`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // A API retorna o array de users serializado do DAO
+            // Como pode não ter a prop 'department' preenchida se o DAO não trouxe, 
+            // a gente mapeia usando o departamento da nossa lista local pra não quebrar outras views.
+            const dept = departments.find(d => d.id === departmentId);
+            const formattedUsers = data.map((u: any) => ({
+                id: u.id,
+                name: u.name,
+                email: u.email,
+                department_id: u.department_id,
+                department: dept
+            }));
+            setusers(formattedUsers);
+        })
+        .catch(error => console.log(error));
+    };
+
     const handleAddTicket = (title: string, description: string, targetDeptId: number) => {
         if (!activeUser) return;
         const dept = departments.find(d => d.id === targetDeptId);
@@ -113,6 +138,7 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
                 <DepartmentColumn 
                     departments={departments} 
                     onSubmit={handleAddDepartment} 
+                    onDepartmentClick={handleDepartmentClick}
                 />
                 
                 <UserColumn 

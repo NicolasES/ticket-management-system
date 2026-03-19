@@ -7,7 +7,6 @@ export interface User {
     id: number;
     name: string;
     department_id: number;
-    department?: Department;
 }
 
 export interface Ticket {

@@ -5,9 +5,10 @@ import { Department } from '@/types/system';
 interface DepartmentColumnProps {
     departments: Department[];
     onSubmit?: (name: string) => void;
+    onDepartmentClick?: (departmentId: number) => void;
 }
 
-export function DepartmentColumn({ departments, onSubmit }: DepartmentColumnProps) {
+export function DepartmentColumn({ departments, onSubmit, onDepartmentClick }: DepartmentColumnProps) {
     const { data, setData, post, reset, processing } = useForm({
         name: ''
     });
@@ -68,7 +69,11 @@ export function DepartmentColumn({ departments, onSubmit }: DepartmentColumnProp
                         </p>
                     ) : (
                         departments.map(d => (
-                            <div key={d.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-800/80 border border-slate-700/50 hover:border-indigo-500/50 transition-colors">
+                            <div 
+                                key={d.id} 
+                                onClick={() => onDepartmentClick && onDepartmentClick(d.id)}
+                                className="flex items-center justify-between p-3 rounded-xl bg-slate-800/80 border border-slate-700/50 hover:border-indigo-500/50 cursor-pointer transition-colors"
+                            >
                                 <span className="text-slate-200 font-medium text-sm">{d.name}</span>
                                 <span className="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded-md">ID #{d.id}</span>
                             </div>

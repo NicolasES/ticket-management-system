@@ -108,8 +108,6 @@ export function UserColumn({ users, departments, activeUser, onUserLogin, onSubm
                     ) : (
                         users.map(u => {
                             const isActive = activeUser?.id === u.id;
-                            // Assumindo que o back-end irá enviar o relation `department` ou apenas cuidaremos dele aqui
-                            const currentDept = u.department || departments.find(d => d.id === u.department_id);
 
                             return (
                                 <button 
@@ -126,7 +124,6 @@ export function UserColumn({ users, departments, activeUser, onUserLogin, onSubm
                                     </div>
                                     <div className="flex-1 overflow-hidden">
                                         <div className="text-slate-200 font-medium text-sm truncate">{u.name}</div>
-                                        <div className="text-xs text-slate-400 truncate">{currentDept?.name || 'Desconhecido'}</div>
                                     </div>
                                     <div className={`text-xs font-medium transition-opacity ${isActive ? 'text-purple-300 opacity-100' : 'text-purple-400 opacity-0 group-hover:opacity-100'}`}>
                                         {isActive ? 'Ativo' : 'Logar'}
