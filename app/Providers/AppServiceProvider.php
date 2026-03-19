@@ -29,6 +29,16 @@ class AppServiceProvider extends ServiceProvider
             \App\Domain\Repositories\UserRepository::class,
             \App\Infrastructure\Persistence\UserRepository::class
         );
+
+        $this->app->singleton(
+            \App\Application\Services\TokenGeneratorInterface::class,
+            \App\Infrastructure\Services\SanctumTokenGenerator::class
+        );
+
+        $this->app->singleton(
+            \App\Domain\Services\PasswordHasherInterface::class,
+            \App\Infrastructure\Services\LaravelPasswordHasher::class
+        );
     }
 
     /**
