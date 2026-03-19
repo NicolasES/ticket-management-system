@@ -4,14 +4,13 @@ namespace App\Application\UseCases;
 
 use App\Application\DTOs\Input\CreateUserInput;
 use App\Domain\Entities\User;
+use App\Domain\Repositories\DepartmentRepository;
 use App\Domain\Repositories\UserRepository;
-use App\Infrastructure\Persistence\DepartmentsRepository;
-use Pest\Support\Arr;
 
 class CreateUser {
     public function __construct(
         private UserRepository $userRepository,
-        private DepartmentsRepository $departmentRepository
+        private DepartmentRepository $departmentRepository
     ) {}
 
     /**

@@ -16,7 +16,7 @@ class UserController {
             'name' => 'required|string',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8',
-            'department_id' => 'required'
+            'department_id' => 'required|integer'
         ]);
         $input = new CreateUserInput(
             $request->name,

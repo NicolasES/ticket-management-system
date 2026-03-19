@@ -7,6 +7,6 @@ class CreateUserInput{
         public readonly string $email,
         public readonly string $name,
         public readonly string $password,
-        public readonly string $departmentId
+        public readonly int $departmentId
     ) {}
 }

@@ -4,13 +4,13 @@ namespace App\Domain\Entities;
 
 class User {
     private ?int $id = null;
-    private string $departmentId;
+    private int $departmentId;
     private string $email;
     private string $name;
     private string $password;
 
 
-    public function __construct(string $email, string $name, string $password, string $departmentId) {
+    public function __construct(string $email, string $name, string $password, int $departmentId) {
         $this->email = $email;
         $this->name = $name;
         $this->password = $password;
@@ -25,7 +25,7 @@ class User {
         $this->id = $id;
     }
 
-    public function getDepartmentId(): string {
+    public function getDepartmentId(): int {
         return $this->departmentId;
     }
 

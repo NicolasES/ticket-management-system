@@ -6,7 +6,7 @@ use App\Domain\Entities\Department;
 use App\Domain\Repositories\DepartmentRepository as DepartmentRepositoryInterface;
 use App\Models\DepartmentModel;
 
-class DepartmentsRepository implements DepartmentRepositoryInterface
+class DepartmentRepository implements DepartmentRepositoryInterface
 {
     public function save(Department $department): Department
     {
