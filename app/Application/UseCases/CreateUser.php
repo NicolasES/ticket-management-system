@@ -12,7 +12,7 @@ class CreateUser {
     ) {}
 
     public function execute(CreateUserInput $input): User {
-        $user = new User($input->email, $input->name);
+        $user = new User($input->email, $input->name, $input->password, $input->departmentId);
         $this->userRepository->save($user);
         return $user;
     }

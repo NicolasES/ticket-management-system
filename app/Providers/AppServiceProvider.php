@@ -24,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
             \App\Application\DAOs\DepartmentDAO::class,
             \App\Infrastructure\DAOs\DepartmentDAO::class
         );
+
+        $this->app->singleton(
+            \App\Domain\Repositories\UserRepository::class,
+            \App\Infrastructure\Persistence\UserRepository::class
+        );
     }
 
     /**
