@@ -41,6 +41,10 @@ class AppServiceProvider extends ServiceProvider
             \App\Application\DAOs\UserDAO::class,
             \App\Infrastructure\DAOs\UserDAO::class
         );
+        $this->app->singleton(
+            \App\Application\DAOs\TicketDAO::class,
+            \App\Infrastructure\DAOs\TicketDAO::class
+        );
 
         // app - Services
         $this->app->singleton(

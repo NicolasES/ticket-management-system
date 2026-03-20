@@ -3,14 +3,30 @@
 namespace App\Http\Controllers;
 
 use App\Application\DTOs\Input\CreateTicketInput;
+use App\Application\DTOs\Input\ListTicketsInput;
 use App\Application\UseCases\CreateTicket;
+use App\Application\UseCases\ListTickets;
 use Illuminate\Http\Request;
 
 class TicketController
 {
     public function __construct(
-        private readonly CreateTicket $createTicket
+        private readonly CreateTicket $createTicket,
+        private readonly ListTickets $listTickets
     ) {}
+
+    public function index(Request $request)
+    {
+        $user = $request->user();
+        if (!$user->department_id) {
+            return response()->json(['message' => 'User not associated with a department'], 400);
+        }
+
+        $input = new ListTicketsInput($user->department_id);
+        $output = $this->listTickets->execute($input);
+
+        return response()->json($output->tickets);
+    }
 
     public function store(Request $request)
     {

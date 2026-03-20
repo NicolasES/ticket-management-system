@@ -23,5 +23,6 @@ Route::post('login', [AuthController::class, 'login'])->name('api.login');
 Route::post('login/direct/{userId}', [AuthController::class, 'loginDirectly'])->name('api.login.direct');
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('tickets', [TicketController::class, 'index'])->name('tickets.index');
     Route::post('tickets', [TicketController::class, 'store'])->name('tickets.store');
 });
