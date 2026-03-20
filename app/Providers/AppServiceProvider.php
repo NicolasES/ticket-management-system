@@ -15,11 +15,23 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Repositories
         $this->app->singleton(
             \App\Domain\Repositories\DepartmentRepository::class,
             \App\Infrastructure\Persistence\DepartmentRepository::class
         );
 
+        $this->app->singleton(
+            \App\Domain\Repositories\UserRepository::class,
+            \App\Infrastructure\Persistence\UserRepository::class
+        );
+
+        $this->app->singleton(
+            \App\Domain\Repositories\TicketRepository::class,
+            \App\Infrastructure\Persistence\TicketRepository::class
+        );
+
+        // DAOs
         $this->app->singleton(
             \App\Application\DAOs\DepartmentDAO::class,
             \App\Infrastructure\DAOs\DepartmentDAO::class
@@ -30,16 +42,13 @@ class AppServiceProvider extends ServiceProvider
             \App\Infrastructure\DAOs\UserDAO::class
         );
 
-        $this->app->singleton(
-            \App\Domain\Repositories\UserRepository::class,
-            \App\Infrastructure\Persistence\UserRepository::class
-        );
-
+        // app - Services
         $this->app->singleton(
             \App\Application\Services\TokenGeneratorInterface::class,
             \App\Infrastructure\Services\SanctumTokenGenerator::class
         );
 
+        // domain - Services
         $this->app->singleton(
             \App\Domain\Services\PasswordHasherInterface::class,
             \App\Infrastructure\Services\LaravelPasswordHasher::class
