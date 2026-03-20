@@ -106,22 +106,65 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
         .catch(error => console.log(error));
     };
 
+    const handleUserLogin = (user: User) => {
+        fetch(`/api/login/direct/${user.id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.access_token) {
+                localStorage.setItem('token', data.access_token);
+                setActiveUser(user);
+            } else {
+                alert('Erro ao logar: ' + (data.message || 'Verifique as credenciais'));
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Erro de requisição ao tentar fazer login direto.');
+        });
+    };
+
     const handleAddTicket = (title: string, description: string, targetDeptId: number) => {
         if (!activeUser) return;
         const dept = departments.find(d => d.id === targetDeptId);
         
-        const newTicket: Ticket = {
-            id: tickets.length + 1,
-            title,
-            description,
-            creator_id: activeUser.id,
-            target_department_id: targetDeptId,
-            created_at: new Date().toISOString(),
-            creator: activeUser,
-            target_department: dept
-        };
-        
-        settickets(prev => [newTicket, ...prev]);
+        fetch('/api/tickets', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            },
+            body: JSON.stringify({
+                title,
+                description,
+                departmentId: targetDeptId,
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.id) {
+                const newTicket: Ticket = {
+                    id: data.id,
+                    title: data.title,
+                    description: data.description,
+                    creator_id: activeUser.id,
+                    target_department_id: targetDeptId,
+                    created_at: new Date().toISOString(),
+                    creator: activeUser,
+                    target_department: dept
+                };
+                settickets(prev => [newTicket, ...prev]);
+            } else {
+                alert('Erro ao criar ticket: ' + (data.message || JSON.stringify(data)));
+            }
+        })
+        .catch(err => console.error(err));
     };
 
     return (
@@ -145,7 +188,7 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
                     users={users} 
                     departments={departments} 
                     activeUser={activeUser} 
-                    onUserLogin={setActiveUser}
+                    onUserLogin={handleUserLogin}
                     onSubmit={handleAddUser}
                 />
                 

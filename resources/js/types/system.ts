@@ -6,6 +6,7 @@ export interface Department {
 export interface User {
     id: number;
     name: string;
+    email?: string;
     department_id: number;
 }
 

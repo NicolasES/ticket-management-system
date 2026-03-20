@@ -18,6 +18,9 @@ Route::get('departments/{departmentId}/users', [DepartmentUserController::class,
 Route::post('users', [UserController::class, 'store'])->name('users.store');
 
 Route::post('login', [AuthController::class, 'login'])->name('api.login');
+// This route is only to simulate login behavior and testing purposes.
+// It should NEVER be used in a real production system without proper protection (authentication/authorization).
+Route::post('login/direct/{userId}', [AuthController::class, 'loginDirectly'])->name('api.login.direct');
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('tickets', [TicketController::class, 'store'])->name('tickets.store');
