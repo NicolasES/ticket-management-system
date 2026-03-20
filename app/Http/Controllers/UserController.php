@@ -16,13 +16,13 @@ class UserController {
             'name' => 'required|string',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8',
-            'department_id' => 'required|integer'
+            'departmentId' => 'required|integer'
         ]);
         $input = new CreateUserInput(
-            $request->name,
             $request->email,
+            $request->name,
             $request->password,
-            $request->department_id
+            $request->departmentId
         );
         $output = $this->createUserUseCase->execute($input);
         return response()->json($output);
