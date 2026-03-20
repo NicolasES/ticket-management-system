@@ -24,6 +24,7 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
 
     useEffect(() => {
         setActiveUser(null);
+        settickets([]);
         localStorage.removeItem('token');
     }, [activeDepartment?.id]);
 
@@ -137,6 +138,7 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
             if (data.access_token) {
                 localStorage.setItem('token', data.access_token);
                 setActiveUser(user);
+                loadTickets(data.access_token);
             } else {
                 alert('Erro ao logar: ' + (data.message || 'Verifique as credenciais'));
             }
@@ -145,6 +147,31 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
             console.error(err);
             alert('Erro de requisição ao tentar fazer login direto.');
         });
+    };
+
+    const loadTickets = (token: string) => {
+        fetch('/api/tickets', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            }
+        })
+        .then(async res => {
+            const data = await res.json();
+            if (!res.ok) {
+                console.error('Erro ao carregar tickets:', data.message);
+                return null;
+            }
+            return data;
+        })
+        .then(data => {
+            if (data) {
+                // Mapeia as relações locais se necessário ou apenas seta o que veio do DAO
+                settickets(data);
+            }
+        })
+        .catch(err => console.error('Erro na requisição de tickets:', err));
     };
 
     const handleAddTicket = (title: string, description: string, targetDeptId: number) => {
