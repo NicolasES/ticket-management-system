@@ -4,33 +4,37 @@ import { Department, User } from '@/types/system';
 
 interface UserColumnProps {
     users: User[];
-    departments: Department[];
     activeUser: User | null;
+    activeDepartment: Department | null;
     onUserLogin: (user: User) => void;
-    onSubmit?: (name: string, email: string, password: string, departmentId: number) => void;
+    onSubmit: (name: string, email: string, password: string, departmentId: number) => Promise<void>;
 }
 
-export function UserColumn({ users, departments, activeUser, onUserLogin, onSubmit }: UserColumnProps) {
+export function UserColumn({ users, activeUser, activeDepartment, onUserLogin, onSubmit }: UserColumnProps) {
     const { data, setData, post, reset, processing } = useForm({
         name: '',
         email: '',
         password: '',
-        department_id: ''
     });
 
-    const handleSubmit = (e: FormEvent) => {
+    React.useEffect(() => {
+        // O efeito antigo foi removido, a sincronização agora é apenas visual no render
+    }, []);
+
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        
-        if (onSubmit) {
-            onSubmit(data.name, data.email, data.password, Number(data.department_id));
-            reset();
+
+        if (!activeDepartment) {
+            alert('Por favor, selecione um departamento na lista ao lado primeiro.');
             return;
         }
 
-        // Caso exista rota backend real mapeada:
-        post('/users', {
-            onSuccess: () => reset(),
-        });
+        try {
+            await onSubmit(data.name, data.email, data.password, activeDepartment.id);
+            reset();
+        } catch (error) {
+            console.log("Falha no cadastro.");
+        }
     };
 
     return (
@@ -40,7 +44,9 @@ export function UserColumn({ users, departments, activeUser, onUserLogin, onSubm
                     <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                     </svg>
-                    <h2 className="text-lg font-semibold text-white">Adicionar Usuário</h2>
+                    <h2 className="text-lg font-semibold text-white">
+                        Adicionar Usuário
+                    </h2>
                 </div>
                 
                 <form className="space-y-4" onSubmit={handleSubmit}>
@@ -74,22 +80,23 @@ export function UserColumn({ users, departments, activeUser, onUserLogin, onSubm
                             onChange={(e) => setData('password', e.target.value)}
                         />
                     </div>
-                    <div>
-                        <select 
-                            required 
-                            className="w-full px-4 py-2.5 rounded-xl input-stylish text-sm appearance-none"
-                            value={data.department_id}
-                            onChange={(e) => setData('department_id', e.target.value)}
-                        >
-                            <option value="" disabled>Vincular a um Departamento...</option>
-                            {departments.map((d) => (
-                                <option key={d.id} value={d.id}>{d.name}</option>
-                            ))}
-                        </select>
+                    <div className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 flex items-center justify-between group">
+                        <div className="flex flex-col">
+                            <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Departamento Destino</span>
+                            <span className="text-sm font-medium text-indigo-300">
+                                {activeDepartment ? activeDepartment.name : 'Selecione um departamento...'}
+                            </span>
+                        </div>
+                        {activeDepartment && (
+                            <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-lg border border-indigo-500/20">
+                                ID #{activeDepartment.id}
+                            </span>
+                        )}
                     </div>
+                    
                     <button 
                         type="submit" 
-                        disabled={processing || departments.length === 0}
+                        disabled={processing || !activeDepartment}
                         className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium transition-all shadow-lg shadow-purple-600/20 active:scale-[0.98] disabled:opacity-50"
                     >
                         {processing ? 'Cadastrando...' : 'Cadastrar Usuário'}

@@ -4,28 +4,25 @@ import { Department } from '@/types/system';
 
 interface DepartmentColumnProps {
     departments: Department[];
-    onSubmit?: (name: string) => void;
+    activeDepartment: Department | null;
+    onSubmit: (name: string) => Promise<void>;
     onDepartmentClick?: (departmentId: number) => void;
 }
 
-export function DepartmentColumn({ departments, onSubmit, onDepartmentClick }: DepartmentColumnProps) {
-    const { data, setData, post, reset, processing } = useForm({
+export function DepartmentColumn({ departments, activeDepartment, onSubmit, onDepartmentClick }: DepartmentColumnProps) {
+    const { data, setData, reset, processing } = useForm({
         name: ''
     });
 
-    const handleSubmit = (e: FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         
-        if (onSubmit) {
-            onSubmit(data.name);
+        try {
+            await onSubmit(data.name);
             reset();
-            return;
+        } catch (error) {
+            console.error("Erro ao cadastrar departamento, mantendo texto.");
         }
-
-        // Caso exista rota backend real mapeada:
-        post('/departments', {
-            onSuccess: () => reset(),
-        });
     };
 
     return (
@@ -72,10 +69,14 @@ export function DepartmentColumn({ departments, onSubmit, onDepartmentClick }: D
                             <div 
                                 key={d.id} 
                                 onClick={() => onDepartmentClick && onDepartmentClick(d.id)}
-                                className="flex items-center justify-between p-3 rounded-xl bg-slate-800/80 border border-slate-700/50 hover:border-indigo-500/50 cursor-pointer transition-colors"
+                                className={`flex items-center justify-between p-3 rounded-xl bg-slate-800/80 border transition-all cursor-pointer ${
+                                    activeDepartment?.id === d.id 
+                                    ? 'border-indigo-500 bg-slate-700/80 ring-1 ring-indigo-500/50' 
+                                    : 'border-slate-700/50 hover:border-indigo-500/50'
+                                }`}
                             >
-                                <span className="text-slate-200 font-medium text-sm">{d.name}</span>
-                                <span className="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded-md">ID #{d.id}</span>
+                                <span className={`${activeDepartment?.id === d.id ? 'text-indigo-300' : 'text-slate-200'} font-medium text-sm`}>{d.name}</span>
+                                <span className={`text-xs ${activeDepartment?.id === d.id ? 'bg-indigo-500/20 text-indigo-300' : 'bg-slate-700 text-slate-300'} px-2 py-1 rounded-md`}>ID #{d.id}</span>
                             </div>
                         ))
                     )}

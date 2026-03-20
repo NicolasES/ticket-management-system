@@ -7,17 +7,17 @@ interface TicketColumnProps {
     departments: Department[];
     users: User[];
     activeUser: User | null;
-    onSubmit?: (title: string, desc: string, targetDeptId: number) => void;
+    onSubmit: (title: string, desc: string, targetDeptId: number) => Promise<void>;
 }
 
 export function TicketColumn({ tickets, departments, users, activeUser, onSubmit }: TicketColumnProps) {
-    const { data, setData, post, reset, processing } = useForm({
+    const { data, setData, reset, processing } = useForm({
         title: '',
         description: '',
         department_id: ''
     });
 
-    const handleSubmit = (e: FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         
         if (!activeUser) {
@@ -25,16 +25,12 @@ export function TicketColumn({ tickets, departments, users, activeUser, onSubmit
             return;
         }
 
-        if (onSubmit) {
-            onSubmit(data.title, data.description, Number(data.department_id));
+        try {
+            await onSubmit(data.title, data.description, Number(data.department_id));
             reset();
-            return;
+        } catch (error) {
+            console.error("Erro ao abrir ticket, mantendo formulário.");
         }
-
-        // Caso exista rota backend real mapeada:
-        post('/tickets', {
-            onSuccess: () => reset(),
-        });
     };
 
     return (

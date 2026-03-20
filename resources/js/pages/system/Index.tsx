@@ -5,6 +5,7 @@ import { DepartmentColumn } from './components/DepartmentColumn';
 import { UserColumn } from './components/UserColumn';
 import { TicketColumn } from './components/TicketColumn';
 import { Head } from '@inertiajs/react';
+import { useEffect } from 'react';
 import './system.css';
 
 interface SystemPageProps {
@@ -19,49 +20,46 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
     const [users, setusers] = useState<User[]>(serverUsers || []);
     const [tickets, settickets] = useState<Ticket[]>(serverTickets || []);
     const [activeUser, setActiveUser] = useState<User | null>(null);
+    const [activeDepartment, setActiveDepartment] = useState<Department | null>(null);
 
-    const seedData = () => {
-        if (departments.length > 0) {
-            alert('Já existem dados! Limpe recarregando a página (ou os dados estão vindo do DB).');
-            return;
-        }
+    useEffect(() => {
+        setActiveUser(null);
+        localStorage.removeItem('token');
+    }, [activeDepartment?.id]);
 
-        const defaultDepts: Department[] = [
-            { id: 1, name: 'Suporte T.I' },
-            { id: 2, name: 'Recursos Humanos' },
-            { id: 3, name: 'Financeiro' },
-        ];
-        setdepartments(defaultDepts);
-
-        const defaultUsers: User[] = [
-            { id: 1, name: 'João Vitor', department_id: 1 },
-            { id: 2, name: 'Maria Joaquina', department_id: 2 },
-            { id: 3, name: 'Carlos Alberto', department_id: 1 },
-        ];
-        setusers(defaultUsers);
-    };
 
     const handleAddDepartment = (name: string) => {
-        fetch('/api/departments', {
+        return fetch('/api/departments', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                // 'Authorization': `Bearer ${localStorage.getItem('token')}`,
             },
             body: JSON.stringify({
                 name,
             }),
         })
-        .then(response => response.json())
-        .then(data => {
-            setdepartments(prev => [...prev, { id: data.id, name: data.name }]);
+        .then(async response => {
+            const data = await response.json();
+            if (!response.ok) {
+                alert('Erro ao adicionar departamento: ' + (data.message || 'Verifique os dados'));
+                throw new Error(data.message || 'Erro de validação');
+            }
+            return data;
         })
-        .catch(error => console.log(error));
+        .then(data => {
+            if (data) {
+                setdepartments(prev => [...prev, { id: data.id, name: data.name }]);
+            }
+        })
+        .catch(error => {
+            console.error('Erro na requisição:', error);
+            throw error;
+        });
     };
 
     const handleAddUser = (name: string, email: string, password: string, departmentId: number) => {
-        fetch('/api/users', {
+        return fetch('/api/users', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -71,39 +69,59 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
                 name,
                 email,
                 password,
-                department_id: departmentId,
+                departmentId: departmentId,
             }),
         })
-        .then(response => response.json())
-        .then(data => {
-            setusers(prev => [...prev, { id: data.id, name: data.name, email: data.email, department_id: data.department_id }]);
+        .then(async response => {
+            const data = await response.json();
+            if (!response.ok) {
+                alert('Erro ao adicionar usuário: ' + (data.message || 'Verifique os dados'));
+                throw new Error(data.message || 'Erro de validação');
+            }
+            return data;
         })
-        .catch(error => console.log(error));
+        .then(data => {
+            if (data) {
+                setusers(prev => [...prev, { id: data.id, name: data.name, email: data.email, department_id: data.department_id }]);
+            }
+        })
+        .catch(error => {
+            console.error('Erro na requisição:', error);
+            throw error; // Re-lança para o componente saber que falhou
+        });
     };
 
     const handleDepartmentClick = (departmentId: number) => {
+        const dept = departments.find(d => d.id === departmentId);
+        if (dept) setActiveDepartment(dept);
+
         fetch(`/api/departments/${departmentId}/users`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            // A API retorna o array de users serializado do DAO
-            // Como pode não ter a prop 'department' preenchida se o DAO não trouxe, 
-            // a gente mapeia usando o departamento da nossa lista local pra não quebrar outras views.
-            const dept = departments.find(d => d.id === departmentId);
-            const formattedUsers = data.map((u: any) => ({
-                id: u.id,
-                name: u.name,
-                email: u.email,
-                department_id: u.department_id,
-                department: dept
-            }));
-            setusers(formattedUsers);
+        .then(async response => {
+            const data = await response.json();
+            if (!response.ok) {
+                alert('Erro ao carregar usuários: ' + (data.message || 'Erro no servidor'));
+                return null;
+            }
+            return data;
         })
-        .catch(error => console.log(error));
+        .then(data => {
+            if (data) {
+                const formattedUsers = data.map((u: any) => ({
+                    id: u.id,
+                    name: u.name,
+                    email: u.email,
+                    department_id: u.department_id,
+                    department: dept
+                }));
+                setusers(formattedUsers);
+            }
+        })
+        .catch(error => console.error('Erro na requisição:', error));
     };
 
     const handleUserLogin = (user: User) => {
@@ -130,10 +148,10 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
     };
 
     const handleAddTicket = (title: string, description: string, targetDeptId: number) => {
-        if (!activeUser) return;
+        if (!activeUser) return Promise.reject('Nenhum usuário logado');
         const dept = departments.find(d => d.id === targetDeptId);
         
-        fetch('/api/tickets', {
+        return fetch('/api/tickets', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -146,7 +164,14 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
                 departmentId: targetDeptId,
             })
         })
-        .then(res => res.json())
+        .then(async res => {
+            const data = await res.json();
+            if (!res.ok) {
+                alert('Erro ao criar ticket: ' + (data.message || JSON.stringify(data)));
+                throw new Error(data.message || 'Erro ao criar ticket');
+            }
+            return data;
+        })
         .then(data => {
             if (data.id) {
                 const newTicket: Ticket = {
@@ -160,11 +185,12 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
                     target_department: dept
                 };
                 settickets(prev => [newTicket, ...prev]);
-            } else {
-                alert('Erro ao criar ticket: ' + (data.message || JSON.stringify(data)));
             }
         })
-        .catch(err => console.error(err));
+        .catch(err => {
+            console.error(err);
+            throw err;
+        });
     };
 
     return (
@@ -173,21 +199,22 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
 
             <TopHeader 
                 activeUser={activeUser} 
-                onSeedData={seedData} 
+                activeDepartment={activeDepartment}
             />
 
             <main className="flex-1 w-full max-w-7xl mx-auto mt-8 px-4 grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
                 <DepartmentColumn 
                     departments={departments} 
+                    activeDepartment={activeDepartment}
                     onSubmit={handleAddDepartment} 
                     onDepartmentClick={handleDepartmentClick}
                 />
                 
                 <UserColumn 
                     users={users} 
-                    departments={departments} 
                     activeUser={activeUser} 
+                    activeDepartment={activeDepartment}
                     onUserLogin={handleUserLogin}
                     onSubmit={handleAddUser}
                 />

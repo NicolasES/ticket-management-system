@@ -1,13 +1,12 @@
-import React from 'react';
-import { User } from '@/types/system';
+import { User, Department } from '@/types/system';
 import { Head } from '@inertiajs/react';
 
 interface TopHeaderProps {
     activeUser: User | null;
-    onSeedData?: () => void;
+    activeDepartment: Department | null;
 }
 
-export function TopHeader({ activeUser, onSeedData }: TopHeaderProps) {
+export function TopHeader({ activeUser, activeDepartment }: TopHeaderProps) {
     return (
         <header className="glass-panel sticky top-0 z-50 px-6 py-4 flex items-center justify-between border-b border-slate-700/50">
             <Head title="Ticket System - Arquitetura" />
@@ -27,10 +26,13 @@ export function TopHeader({ activeUser, onSeedData }: TopHeaderProps) {
             </div>
 
             <div className="flex items-center gap-4">
-                {onSeedData && (
-                    <button onClick={onSeedData} className="px-4 py-1.5 rounded-lg text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors border border-slate-700">
-                        [+ Seed Dados Básicos]
-                    </button>
+                {activeDepartment && (
+                    <div className="ml-8 px-3 py-1 rounded-md bg-indigo-500/10 border border-indigo-500/20 flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-indigo-400 animate-pulse"></div>
+                        <span className="text-xs font-semibold text-indigo-300 uppercase tracking-wider">
+                            Departamento: {activeDepartment.name}
+                        </span>
+                    </div>
                 )}
                 
                 {activeUser ? (
