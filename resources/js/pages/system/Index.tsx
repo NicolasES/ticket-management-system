@@ -200,7 +200,7 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
             return data;
         })
         .then(data => {
-            if (data.id) {
+            if (data.id && data.department.id == activeDepartment?.id) {
                 const newTicket: Ticket = {
                     id: data.id,
                     title: data.title,
