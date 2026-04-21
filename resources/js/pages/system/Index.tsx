@@ -6,21 +6,21 @@ import { UserColumn } from './components/UserColumn';
 import { TicketColumn } from './components/TicketColumn';
 import { Head } from '@inertiajs/react';
 import { useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useDepartments } from '@/hooks/useDepartments';
+import { TicketModal } from './components/TicketModal';
 import './system.css';
 
-interface SystemPageProps {
-    serverDepartments?: Department[];
-    serverUsers?: User[];
-    serverTickets?: Ticket[];
-}
+export default function SystemIndex() {
+    const queryClient = useQueryClient();
+    const { data: departments = [] } = useDepartments();
 
-export default function SystemIndex({ serverDepartments = [], serverUsers = [], serverTickets = [] }: SystemPageProps) {
     // Estado local para permitir a simulação de tela sem o backend pronto
-    const [departments, setdepartments] = useState<Department[]>(serverDepartments || []);
-    const [users, setusers] = useState<User[]>(serverUsers || []);
-    const [tickets, settickets] = useState<Ticket[]>(serverTickets || []);
+    const [users, setusers] = useState<User[]>([]);
+    const [tickets, settickets] = useState<Ticket[]>([]);
     const [activeUser, setActiveUser] = useState<User | null>(null);
     const [activeDepartment, setActiveDepartment] = useState<Department | null>(null);
+    const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
     useEffect(() => {
         setActiveUser(null);
@@ -50,7 +50,7 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
         })
         .then(data => {
             if (data) {
-                setdepartments(prev => [...prev, { id: data.id, name: data.name }]);
+                queryClient.invalidateQueries({ queryKey: ['departments'] });
             }
         })
         .catch(error => {
@@ -83,7 +83,7 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
         })
         .then(data => {
             if (data) {
-                setusers(prev => [...prev, { id: data.id, name: data.name, email: data.email, department_id: data.department_id }]);
+                setusers(prev => [...prev, { id: data.id, name: data.name, email: data.email, departmentId: data.departmentId }]);
             }
         })
         .catch(error => {
@@ -116,7 +116,7 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
                     id: u.id,
                     name: u.name,
                     email: u.email,
-                    department_id: u.department_id,
+                    departmentId: u.departmentId,
                     department: dept
                 }));
                 setusers(formattedUsers);
@@ -205,11 +205,10 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
                     id: data.id,
                     title: data.title,
                     description: data.description,
-                    creator_id: activeUser.id,
-                    target_department_id: targetDeptId,
-                    created_at: new Date().toISOString(),
+                    requesterId: activeUser.id,
+                    departmentId: targetDeptId,
+                    createdAt: new Date().toISOString(),
                     creator: activeUser,
-                    target_department: dept
                 };
                 settickets(prev => [newTicket, ...prev]);
             }
@@ -219,6 +218,10 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
             throw err;
         });
     };
+
+    const handleTicketClick = (ticket: Ticket) => {
+        setSelectedTicket(ticket);
+    }
 
     return (
         <div className="min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white pb-10 bg-slate-900 text-slate-50 font-sans mock-system-scope">
@@ -230,9 +233,12 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
             />
 
             <main className="flex-1 w-full max-w-7xl mx-auto mt-8 px-4 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
+            <TicketModal 
+                ticket={selectedTicket} 
+                onClose={() => setSelectedTicket(null)} 
+            />
+
                 <DepartmentColumn 
-                    departments={departments} 
                     activeDepartment={activeDepartment}
                     onSubmit={handleAddDepartment} 
                     onDepartmentClick={handleDepartmentClick}
@@ -248,10 +254,10 @@ export default function SystemIndex({ serverDepartments = [], serverUsers = [], 
                 
                 <TicketColumn 
                     tickets={tickets} 
-                    departments={departments} 
                     users={users}
                     activeUser={activeUser}
                     onSubmit={handleAddTicket}
+                    onTicketClick={handleTicketClick}
                 />
 
             </main>

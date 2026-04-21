@@ -1,16 +1,19 @@
 import React, { FormEvent } from 'react';
 import { useForm } from '@inertiajs/react';
 import { Department, Ticket, User } from '@/types/system';
+import { useDepartments } from '@/hooks/useDepartments';
 
 interface TicketColumnProps {
     tickets: Ticket[];
-    departments: Department[];
     users: User[];
     activeUser: User | null;
     onSubmit: (title: string, desc: string, targetDeptId: number) => Promise<void>;
+    onTicketClick: (ticket: Ticket) => void;
 }
 
-export function TicketColumn({ tickets, departments, users, activeUser, onSubmit }: TicketColumnProps) {
+export function TicketColumn({ tickets, users, activeUser, onSubmit, onTicketClick }: TicketColumnProps) {
+    const { data: serverDepartments } = useDepartments();
+    
     const { data, setData, reset, processing } = useForm({
         title: '',
         description: '',
@@ -88,14 +91,14 @@ export function TicketColumn({ tickets, departments, users, activeUser, onSubmit
                             disabled={!activeUser}
                         >
                             <option value="" disabled>Departamento de Destino...</option>
-                            {departments.map((d) => (
+                            {serverDepartments?.map((d) => (
                                 <option key={d.id} value={d.id}>{d.name}</option>
                             ))}
                         </select>
                     </div>
                     <button 
                         type="submit" 
-                        disabled={processing || !activeUser || departments.length === 0}
+                        disabled={processing || !activeUser || serverDepartments?.length === 0}
                         className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-all shadow-lg shadow-emerald-600/20 active:scale-[0.98] disabled:opacity-50"
                     >
                         {processing ? 'Criando Ticket...' : 'Criar Ticket'}
@@ -113,12 +116,12 @@ export function TicketColumn({ tickets, departments, users, activeUser, onSubmit
                         </p>
                     ) : (
                         tickets.map(t => {
-                            // Resolver relations no mock local
-                            const creator = t.creator || users.find(u => u.id === t.creator_id);
-                            const targetDept = t.target_department || departments.find(d => d.id === t.target_department_id);
+                            const creator = t.creator || users.find(u => u.id === t.requesterId);
+                            const deptName = serverDepartments?.find(d => d.id === t.departmentId)?.name 
+                                           || 'Desconhecido';
 
                             return (
-                                <div key={t.id} className="p-4 rounded-xl bg-slate-800/80 border border-slate-700/50 flex flex-col gap-2 relative overflow-hidden group hover:border-emerald-500/30 transition-colors">
+                                <div onClick={() => onTicketClick(t)} key={t.id} className="p-4 rounded-xl bg-slate-800/80 border border-slate-700/50 flex flex-col gap-2 relative overflow-hidden group hover:border-emerald-500/30 transition-colors">
                                     <div className="absolute top-0 right-0 px-2 py-1 bg-emerald-500/20 rounded-bl-xl border-b border-l border-emerald-500/20 text-[10px] text-emerald-400 font-bold uppercase tracking-wider shadow-sm">
                                         TKT-#{t.id.toString().padStart(4, '0')}
                                     </div>
@@ -141,7 +144,7 @@ export function TicketColumn({ tickets, departments, users, activeUser, onSubmit
                                         <div className="flex flex-col items-end">
                                             <span className="text-[10px] text-slate-500 leading-none">Para Depto:</span>
                                             <span className="text-xs text-indigo-400 font-medium leading-none mt-1 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/10">
-                                                {targetDept?.name || 'Desconhecido'}
+                                                {deptName}
                                             </span>
                                         </div>
                                     </div>

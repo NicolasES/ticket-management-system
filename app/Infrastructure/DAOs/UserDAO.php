@@ -9,8 +9,9 @@ class UserDAO implements UserDAOInterface
 {
     public function findByDepartmentId(int $departmentId): array
     {
-        return User::where('department_id', $departmentId)
-            ->get(['id', 'name', 'email', 'department_id'])
+        return User::select('id', 'name', 'email', 'department_id as departmentId')
+            ->where('department_id', $departmentId)
+            ->get()
             ->toArray();
     }
 }

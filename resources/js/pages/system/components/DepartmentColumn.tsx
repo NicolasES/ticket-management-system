@@ -1,15 +1,17 @@
 import React, { FormEvent } from 'react';
 import { useForm } from '@inertiajs/react';
 import { Department } from '@/types/system';
+import { useDepartments } from '@/hooks/useDepartments';
 
 interface DepartmentColumnProps {
-    departments: Department[];
     activeDepartment: Department | null;
     onSubmit: (name: string) => Promise<void>;
     onDepartmentClick?: (departmentId: number) => void;
 }
 
-export function DepartmentColumn({ departments, activeDepartment, onSubmit, onDepartmentClick }: DepartmentColumnProps) {
+export function DepartmentColumn({ activeDepartment, onSubmit, onDepartmentClick }: DepartmentColumnProps) {
+    const { data: departments = [], isLoading, isError } = useDepartments();
+    
     const { data, setData, reset, processing } = useForm({
         name: ''
     });
@@ -60,7 +62,13 @@ export function DepartmentColumn({ departments, activeDepartment, onSubmit, onDe
                 <h3 className="text-sm font-medium text-slate-400 mb-3 uppercase tracking-wider">Lista de Departamentos</h3>
                 
                 <div className="space-y-2 overflow-y-auto max-h-[400px] flex-1">
-                    {departments.length === 0 ? (
+                    {isLoading ? (
+                        <div className="flex items-center justify-center py-10">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+                        </div>
+                    ) : isError ? (
+                        <p className="text-red-400 text-sm text-center py-4">Erro ao carregar departamentos.</p>
+                    ) : departments.length === 0 ? (
                         <p className="text-slate-500 text-sm italic py-4 text-center border border-dashed border-slate-700 rounded-xl">
                             Nenhum departamento cadastrado.
                         </p>

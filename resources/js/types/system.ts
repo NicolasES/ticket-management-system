@@ -7,16 +7,15 @@ export interface User {
     id: number;
     name: string;
     email?: string;
-    department_id: number;
+    departmentId: number;
 }
 
 export interface Ticket {
     id: number;
     title: string;
     description: string;
-    creator_id: number;
-    target_department_id: number;
-    created_at: string;
+    requesterId: number;
+    departmentId: number;
+    createdAt: string;
     creator?: User;
-    target_department?: Department;
 }

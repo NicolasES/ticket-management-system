@@ -12,6 +12,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::get('departments', [DepartmentController::class, 'index'])->name('departments.index');
 Route::post('departments', [DepartmentController::class, 'store'])->name('departments.store');
 Route::get('departments/{departmentId}/users', [DepartmentUserController::class, 'index'])->name('departments.users.index');
 

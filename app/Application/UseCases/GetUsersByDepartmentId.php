@@ -10,7 +10,7 @@ class GetUsersByDepartmentId
 
     /**
      * @param int $departmentId
-     * @return array<int, array{id: int, name: string, email: string, department_id: int}>
+     * @return array<int, array{id: int, name: string, email: string, departmentId: int}>
      */
     public function execute(int $departmentId): array
     {
