@@ -11,12 +11,15 @@ use App\Domain\Exceptions\NotFoundException;
 use App\Domain\Repositories\DepartmentRepository;
 use App\Domain\Repositories\TicketRepository;
 use App\Domain\Repositories\UserRepository;
+use App\Application\Ports\EventDispatcherInterface;
+use App\Domain\Events\TicketCreated;
 
 class CreateTicket {
     public function __construct(
         private readonly TicketRepository $ticketRepository,
         private readonly UserRepository $userRepository,
-        private readonly DepartmentRepository $departmentRepository 
+        private readonly DepartmentRepository $departmentRepository,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {}
 
     public function execute(CreateTicketInput $input): CreateTicketOutput {
@@ -44,6 +47,10 @@ class CreateTicket {
             $ticket->getStatus()->value,
             new TicketDepartmentOutput($department->getId(), $department->getName()),
             new TicketRequesterOutput($requester->getId(), $requester->getName())
+        );
+
+        $this->eventDispatcher->dispatch(
+            new TicketCreated($ticket)
         );
         
         return $output;

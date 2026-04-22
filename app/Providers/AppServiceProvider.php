@@ -57,6 +57,12 @@ class AppServiceProvider extends ServiceProvider
             \App\Domain\Services\PasswordHasherInterface::class,
             \App\Infrastructure\Services\LaravelPasswordHasher::class
         );
+
+        // adapters
+        $this->app->singleton(
+            \App\Application\Ports\EventDispatcherInterface::class,
+            \App\Infrastructure\Adapters\LaravelEventDispatcher::class
+        );
     }
 
     /**
