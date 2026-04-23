@@ -19,18 +19,20 @@ class DepartmentAndUserSeeder extends Seeder
             ['name' => 'Recursos Humanos'],
         ];
 
+        $count = 1;
         foreach ($departments as $deptData) {
             $department = DepartmentModel::create($deptData);
 
             // Criar 2 usuários para cada departamento
             for ($i = 1; $i <= 2; $i++) {
-                $deptNameSlug = strtolower(str_replace(' ', '.', $deptData['name']));
                 User::create([
-                    'name' => "Usuário {$i} do " . $deptData['name'],
-                    'email' => "user{$i}.{$deptNameSlug}@example.com",
+                    'name' => "Usuário {$count} - " . $deptData['name'],
+                    'email' => "user{$count}@email.com",
                     'password' => Hash::make('password'),
                     'department_id' => $department->id,
                 ]);
+
+                $count++;
             }
         }
     }
