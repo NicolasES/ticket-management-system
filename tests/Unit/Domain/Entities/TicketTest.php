@@ -19,3 +19,27 @@ test('should set the id of a ticket', function() {
     $ticket->setId(1);
     expect($ticket->getId())->toBe(1);
 });
+
+test('should allow requester to comment on ticket', function() {
+    $ticket = new Ticket('title', 'description', 10, 5);
+    $requester = new \App\Domain\Entities\User('name', 'email', 'pass', 99);
+    $requester->setId(5);
+    
+    expect($ticket->canBeCommentedBy($requester))->toBeTrue();
+});
+
+test('should allow user from same department to comment on ticket', function() {
+    $ticket = new Ticket('title', 'description', 10, 5); 
+    $deptUser = new \App\Domain\Entities\User('name', 'email', 'pass', 10); 
+    $deptUser->setId(8);
+    
+    expect($ticket->canBeCommentedBy($deptUser))->toBeTrue();
+});
+
+test('should not allow random user to comment on ticket', function() {
+    $ticket = new Ticket('title', 'description', 10, 5); 
+    $randomUser = new \App\Domain\Entities\User('name', 'email', 'pass', 99); 
+    $randomUser->setId(8);
+    
+    expect($ticket->canBeCommentedBy($randomUser))->toBeFalse();
+});

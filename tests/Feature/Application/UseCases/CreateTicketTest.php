@@ -1,11 +1,13 @@
-<?php
+<?php 
 
 use App\Application\DTOs\Input\CreateTicketInput;
 use App\Application\DTOs\Output\CreateTicketOutput;
 use App\Application\UseCases\CreateTicket;
+use App\Application\Ports\EventDispatcherInterface;
 use App\Domain\Entities\Department;
 use App\Domain\Entities\Ticket;
 use App\Domain\Entities\User;
+use App\Domain\Events\TicketCreated;
 use App\Domain\Exceptions\NotFoundException;
 use App\Domain\Repositories\DepartmentRepository;
 use App\Domain\Repositories\TicketRepository;
@@ -34,7 +36,11 @@ describe('AnswerQuestion', function () {
         $departmentRepository->shouldReceive('findById')->andReturn($this->departmentMock);
         $ticketRepository->shouldReceive('save')->andReturn($ticketMock);
         
-        $createTicket = new CreateTicket($ticketRepository, $userRepository, $departmentRepository);
+        // Mock do EventDispatcher
+        $eventDispatcher = Mockery::mock(EventDispatcherInterface::class);
+        $eventDispatcher->shouldReceive('dispatch')->once()->with(Mockery::type(TicketCreated::class));
+        
+        $createTicket = new CreateTicket($ticketRepository, $userRepository, $departmentRepository, $eventDispatcher);
         $createTicketInput = new CreateTicketInput('fakeTitle', 'fakeDescription', 1, 1);
         $output = $createTicket->execute($createTicketInput);
         
@@ -57,7 +63,7 @@ describe('AnswerQuestion', function () {
         $departmentRepository->shouldReceive('findById')->andReturn($this->departmentMock);
         $ticketRepository->shouldReceive('save')->andReturn($ticket);
         
-        $createTicket = new CreateTicket($ticketRepository, $userRepository, $departmentRepository);
+        $createTicket = new CreateTicket($ticketRepository, $userRepository, $departmentRepository, Mockery::mock(EventDispatcherInterface::class));
         $createTicketInput = new CreateTicketInput('fakeTitle', 'fakeDescription', 1, 1);
         expect(fn() => $createTicket->execute($createTicketInput))->toThrow(new NotFoundException('Requester not found'));
     });
@@ -72,7 +78,7 @@ describe('AnswerQuestion', function () {
         $departmentRepository->shouldReceive('findById')->andReturn(null);
         $ticketRepository->shouldReceive('save')->andReturn($ticket);
         
-        $createTicket = new CreateTicket($ticketRepository, $userRepository, $departmentRepository);
+        $createTicket = new CreateTicket($ticketRepository, $userRepository, $departmentRepository, Mockery::mock(EventDispatcherInterface::class));
         $createTicketInput = new CreateTicketInput('fakeTitle', 'fakeDescription', 1, 1);
         expect(fn() => $createTicket->execute($createTicketInput))->toThrow(new NotFoundException('Department not found'));
     });

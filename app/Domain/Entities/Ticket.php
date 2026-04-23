@@ -55,4 +55,8 @@ class Ticket {
     public function getStatus(): TicketStatusEnum {
         return $this->status;
     }
+
+    public function canBeCommentedBy(User $user): bool {
+        return $this->requesterId == $user->getId() || $this->departmentId == $user->getDepartmentId();
+    }
 }

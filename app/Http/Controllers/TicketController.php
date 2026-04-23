@@ -2,17 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Application\DTOs\Input\CreateTicketCommentInput;
 use App\Application\DTOs\Input\CreateTicketInput;
 use App\Application\DTOs\Input\ListTicketsInput;
+use App\Application\UseCases\CommentTicket;
 use App\Application\UseCases\CreateTicket;
 use App\Application\UseCases\ListTickets;
+use App\Domain\Exceptions\DomainException;
+use App\Domain\Exceptions\NotFoundException;
+use App\Domain\Exceptions\UnauthorizedException;
 use Illuminate\Http\Request;
 
 class TicketController
 {
     public function __construct(
         private readonly CreateTicket $createTicket,
-        private readonly ListTickets $listTickets
+        private readonly ListTickets $listTickets,
+        private readonly CommentTicket $commentTicket
     ) {}
 
     public function index(Request $request)
@@ -46,5 +52,30 @@ class TicketController
         $ticket = $this->createTicket->execute($input);
 
         return response()->json($ticket, 201);
+    }
+
+    public function addComment(Request $request, int $ticketId)
+    {
+        $request->validate([
+            'comment' => 'required|string',
+        ]);
+
+        try {
+            $input = new CreateTicketCommentInput(
+                $ticketId,
+                $request->user()->id,
+                $request->input('comment')
+            );
+
+            $output = $this->commentTicket->execute($input);
+
+            return response()->json($output, 201);
+        } catch (NotFoundException $e) {
+            return response()->json(['message' => $e->getMessage()], 404);
+        } catch (UnauthorizedException $e) {
+            return response()->json(['message' => $e->getMessage()], 403);
+        } catch (DomainException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
     }
 }
