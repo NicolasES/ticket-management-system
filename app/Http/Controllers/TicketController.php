@@ -8,6 +8,7 @@ use App\Application\DTOs\Input\ListTicketsInput;
 use App\Application\UseCases\CommentTicket;
 use App\Application\UseCases\CreateTicket;
 use App\Application\UseCases\ListTickets;
+use App\Application\UseCases\GetTicketDetails;
 use Illuminate\Http\Request;
 
 class TicketController
@@ -15,8 +16,16 @@ class TicketController
     public function __construct(
         private readonly CreateTicket $createTicket,
         private readonly ListTickets $listTickets,
-        private readonly CommentTicket $commentTicket
+        private readonly CommentTicket $commentTicket,
+        private readonly GetTicketDetails $getTicketDetails
     ) {}
+
+    public function show(Request $request, int $ticketId)
+    {
+        $ticket = $this->getTicketDetails->execute($ticketId, $request->user()->id);
+
+        return response()->json($ticket);
+    }
 
     public function index(Request $request)
     {

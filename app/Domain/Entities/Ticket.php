@@ -59,4 +59,8 @@ class Ticket {
     public function canBeCommentedBy(User $user): bool {
         return $this->requesterId == $user->getId() || $this->departmentId == $user->getDepartmentId();
     }
+
+    public function canBeViewedBy(User $user): bool {
+        return $this->requesterId == $user->getId() || $this->departmentId == $user->getDepartmentId();
+    }
 }
