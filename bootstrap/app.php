@@ -24,5 +24,21 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\App\Domain\Exceptions\NotFoundException $e, \Illuminate\Http\Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json(['message' => $e->getMessage()], 404);
+            }
+        });
+
+        $exceptions->render(function (\App\Domain\Exceptions\UnauthorizedException $e, \Illuminate\Http\Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json(['message' => $e->getMessage()], 403);
+            }
+        });
+
+        $exceptions->render(function (\App\Domain\Exceptions\DomainException $e, \Illuminate\Http\Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json(['message' => $e->getMessage()], 422);
+            }
+        });
     })->create();
